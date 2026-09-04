@@ -1,72 +1,55 @@
-# Wodby service template
+# Ghost service for Kubernetes on Wodby
 
-This repository is a starter for a Git-backed Wodby service. Wodby imports
-`service.yml` from the selected Git ref and creates a new service revision every
-time you import or update it.
+Run Ghost as a reusable, persistent application service with Wodby.
 
-The included manifest is intentionally small: it defines a buildable HTTP
-service using the Wodby nginx Helm chart. Replace the example names, image,
-chart, options, and settings with the service you want to publish.
+This repository defines the Wodby service manifest and operational contract for Ghost.
 
-## Files
+- [Ghost service on Wodby](https://wodby.com/services/ghost)
+- [Browse Wodby services](https://wodby.com/services)
+- [Wodby service documentation](https://wodby.com/docs/2.0/services/)
+- [Service manifest reference](https://wodby.com/docs/2.0/services/template/)
 
-- `service.yml` - the Wodby service manifest.
-- `Dockerfile` - default Dockerfile content imported into the service build
-  configuration.
-- `.dockerignore` - default Docker ignore content imported into the service
-  build configuration.
+## Wodby stacks using this service
 
-## Start here
+- [Ghost application stack](https://github.com/wodby/stack-ghost)
 
-1. Change `name`, `title`, `icon`, and `labels` in `service.yml`.
-2. Replace `options` with the versions or variants your service supports.
-3. Replace the container `image` and the `helm` chart information.
-4. Keep workload and container names stable after users create app services from
-   this service. Renaming them can break stack and app-level overrides.
-5. Keep `update: manual` until you are ready for Git updates to drive dependent
-   stack updates. Use `update: auto` only when automatic downstream updates are
-   intentional.
+## Service overview
 
-## Build support
+| Property | Manifest configuration |
+| --- | --- |
+| Service name | `ghost` |
+| Type | Application service |
+| Versions | Ghost 6 |
+| Workloads | `main` (StatefulSet), primary, one replica |
+| Containers | `ghost` using the official `ghost` image |
+| Endpoint | HTTP 2368 with a 50 MiB request-body limit |
+| Links | MySQL 8 database and SMTP relay |
+| Volume | Content, 10 GB by default |
+| Operations | Content import and backup |
+| Helm | `oci://registry-1.docker.io/wodby/stateful`, version `0.2.0` |
 
-`build.connect: true` lets app services connect a Git repository and build an
-image with Wodby CI. At least one workload container must have `build: true` when
-the service has a `build` section.
+## Runtime requirements
 
-`build.dockerfile` and `build.dockerignore` point to files in this repository.
-During import, Wodby reads those files and stores their contents in the service
-revision.
+Ghost requires MySQL 8 in production; MariaDB is not supported. Transactional email is sent through the linked SMTP
+relay. Set the required email sender to an address accepted by that relay.
 
-If you also maintain starter application repositories, add them under
-`build.templates`:
+Ghost 6 stores persistent files in `/var/lib/ghost/content`. Do not change this service to Ghost 7 as a compatible
+image update: Ghost 7 uses a different content path and requires an explicit storage migration.
 
-```yaml
-build:
-  dockerfile: Dockerfile
-  dockerignore: .dockerignore
-  connect: true
-  templates:
-  - name: app
-    title: Application starter
-    repo: https://github.com/example/app-starter
-    branch: main
-    default: true
+## Maintain a custom version
+
+1. Fork this repository.
+2. Edit `service.yml`.
+3. Import the repository as a [Git-backed service](https://wodby.com/docs/2.0/services/create/#create-a-git-backed-service).
+4. Reference `ghost` from a stack manifest.
+
+Keep service, workload, container, endpoint, link, volume, and setting names stable unless consuming stacks and
+app-level overrides are updated at the same time.
+
+Validate the manifest with:
+
+```bash
+wodby service validate-manifest service.yml --org <org-id>
 ```
 
-## Multiple services
-
-A repository can contain multiple services. Put each service in its own
-directory and add an `index.yml` at the repository root:
-
-```yaml
-services:
-- api
-- worker
-```
-
-Each listed directory must contain its own `service.yml`.
-
-## References
-
-- Service template reference: https://wodby.com/docs/2.0/services/template/
-- Naming rules: https://wodby.com/docs/2.0/naming/
+See the [managed services index](https://github.com/wodby/services) for other Wodby services.

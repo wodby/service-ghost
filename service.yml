@@ -1,61 +1,193 @@
-name: example-service
+name: ghost
+icon: ghost
 type: service
-icon: service
-title: Example Service
-update: manual
-scalable: true
-
-labels:
-- example
-- web
+title: Ghost
+scalable: false
 
 options:
-- version: '1.0'
-  tag: '1.29'
+- version: '6'
+  tag: '6.62.0-alpine'
   default: true
 
 endpoints:
-- name: http
+- name: ghost
   main: true
   ports:
   - name: http
-    number: 80
+    number: 2368
     protocol: http
     main: true
+    routeDefaults:
+      request_body_size: 50Mi
+
+labels:
+- ghost
+- cms
+- blog
+
+settings:
+- name: mail_from
+  title: Email sender
+  description: Sender used for transactional email, for example Ghost <ghost@example.com>
+  placeholder: Ghost <ghost@example.com>
+  required: true
+  var: mail__from
 
 env:
-- name: NGINX_VHOST_PRESET
-  value: html
-- name: NGINX_SERVER_ROOT
-  value: /var/www/html
+- name: NODE_ENV
+  value: production
+- name: url
+  value: '{{service.primaryURL}}'
+- name: server__host
+  value: 0.0.0.0
+- name: server__port
+  value: '2368'
 
-build:
-  dockerfile: Dockerfile
-  dockerignore: .dockerignore
-  connect: true
+links:
+- name: db
+  title: MySQL database
+  required: true
+  env:
+  - name: database__client
+    value: mysql
+  - name: database__connection__host
+    value: '{{link.database.host}}'
+  - name: database__connection__port
+    value: '{{link.database.port}}'
+  - name: database__connection__user
+    value: '{{link.database.user.name}}'
+  - name: database__connection__password
+    value: '{{link.database.user.password}}'
+    secret: true
+  - name: database__connection__database
+    value: '{{link.database.db.name}}'
+  selectors:
+  - type: db
+    option: '8'
+    labels:
+    - mysql
+- name: sendmail
+  title: Mail transfer agent
+  required: true
+  env:
+  - name: mail__transport
+    value: SMTP
+  - name: mail__options__host
+    value: '{{link.host}}'
+  - name: mail__options__port
+    value: '{{link.port}}'
+  - name: mail__options__secure
+    value: 'false'
+  selectors:
+  - type: service
+    labels:
+    - smtpd
+
+volumes:
+- name: content
+  title: Content
+  path: /var/lib/ghost/content
+  size: 10
+  import:
+    owner: 1000
+    group: 1000
+  helm:
+    labels: persistence.labels
+    values:
+    - name: persistence.enabled
+      value: true
+    - name: persistence.size
+      value: '{{volumes.content.size}}Gi'
+    - name: persistence.storageClass
+      value: '{{volumes.content.storageClassName}}'
+    - name: persistence.existingClaim
+      value: '{{volumes.content.claim}}'
+
+imports:
+- name: content
+  title: Content import
+  volume: content
+  destination: /var/lib/ghost/content
+  extensions:
+  - tar
+  - tar.gz
+  - tgz
+  - zip
+
+backups:
+- name: content
+  title: Content backup
+  upload:
+    dir: /var/lib/ghost/content
+    gzip: true
 
 helm:
   name: wodby
-  source: oci://registry-1.docker.io/wodby/nginx
-  chart: oci://registry-1.docker.io/wodby/nginx
+  source: oci://registry-1.docker.io/wodby/stateful
+  chart: oci://registry-1.docker.io/wodby/stateful
   version: 0.2.0
+  valueMappings:
+    replicas: replicaCount
+    fullnameOverride: fullnameOverride
+    serviceAccountName: serviceAccount.name
+    serviceAccountCreate: serviceAccount.create
+    strategy: updateStrategy
+    minReady: minReadySeconds
+    shutdownGracePeriod: terminationGracePeriodSeconds
+  values:
+  - name: containerName
+    value: ghost
+  - name: containerPorts
+    value:
+    - name: http
+      containerPort: 2368
+      protocol: TCP
+  - name: service.ports
+    value:
+    - name: http
+      port: 2368
+      targetPort: http
+      protocol: TCP
+  - name: headlessService.enabled
+    value: false
+  - name: persistence.mountPath
+    value: /var/lib/ghost/content
+  - name: serviceAccount.automount
+    value: false
+  - name: startupProbe
+    value:
+      tcpSocket:
+        port: http
+      failureThreshold: 60
+      periodSeconds: 5
+  - name: readinessProbe
+    value:
+      httpGet:
+        path: /
+        port: http
+      periodSeconds: 10
+  - name: livenessProbe
+    value:
+      tcpSocket:
+        port: http
+      initialDelaySeconds: 30
+      periodSeconds: 10
 
 workloads:
 - name: main
   selector:
     matchLabels:
       app.kubernetes.io/instance: '{{helm.release}}'
-  kind: deployment
+  kind: statefulset
   primary: true
   helm:
-    labels: commonLabels
-    annotations: commonAnnotations
+    labels: podLabels
+    annotations: podAnnotations
     volumes: extraVolumes
   containers:
-  - name: nginx
-    image: wodby/nginx
-    build: true
+  - name: ghost
+    image: ghost
     helm:
       resources: resources
-      env: extraEnvVars
+      env: envVars
       mounts: extraVolumeMounts
