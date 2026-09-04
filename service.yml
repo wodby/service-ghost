@@ -6,7 +6,7 @@ scalable: false
 
 options:
 - version: '6'
-  tag: '6.62.0-alpine'
+  tag: '6.62.0'
   default: true
 
 endpoints:
@@ -28,7 +28,8 @@ labels:
 settings:
 - name: mail_from
   title: Email sender
-  description: Sender used for transactional email, for example Ghost <ghost@example.com>
+  description: Sender used for transactional email, for example Ghost 
+    <ghost@example.com>
   placeholder: Ghost <ghost@example.com>
   required: true
   var: mail__from
