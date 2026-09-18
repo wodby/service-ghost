@@ -64,7 +64,7 @@ links:
     value: '{{link.database.db.name}}'
   selectors:
   - type: db
-    option: '8'
+    option: '8.4'
     labels:
     - mysql
 - name: sendmail

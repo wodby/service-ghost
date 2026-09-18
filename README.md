@@ -23,14 +23,14 @@ This repository defines the Wodby service manifest and operational contract for 
 | Workloads | `main` (StatefulSet), primary, one replica |
 | Containers | `ghost` using the official `ghost` image |
 | Endpoint | HTTP 2368 with a 50 MiB request-body limit |
-| Links | MySQL 8 database and SMTP relay |
+| Links | MySQL 8.4 database and SMTP relay |
 | Volume | Content, 10 GB by default |
 | Operations | Content import and backup |
 | Helm | `oci://registry-1.docker.io/wodby/stateful`, version `0.2.0` |
 
 ## Runtime requirements
 
-Ghost requires MySQL 8 in production; MariaDB is not supported. Transactional email is sent through the linked SMTP
+This service requires MySQL 8.4 LTS in production; MariaDB is not supported. Transactional email is sent through the linked SMTP
 relay. Set the required email sender to an address accepted by that relay.
 
 Ghost 6 stores persistent files in `/var/lib/ghost/content`. Do not change this service to Ghost 7 as a compatible
