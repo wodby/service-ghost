@@ -2,6 +2,7 @@ name: ghost
 icon: ghost
 type: service
 title: Ghost
+guidance: GUIDANCE.md
 scalable: false
 
 options:
