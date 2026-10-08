@@ -164,9 +164,15 @@ helm:
       periodSeconds: 5
   - name: readinessProbe
     value:
+      # Ghost redirects plain HTTP requests to HTTPS when its URL is HTTPS.
+      # The probe would follow that redirect to a port that does not speak
+      # TLS, so it tells Ghost the request already arrived over HTTPS.
       httpGet:
         path: /
         port: http
+        httpHeaders:
+        - name: X-Forwarded-Proto
+          value: https
       periodSeconds: 10
   - name: livenessProbe
     value:
