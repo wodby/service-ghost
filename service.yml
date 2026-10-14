@@ -7,7 +7,7 @@ scalable: false
 
 options:
 - version: '6'
-  tag: '6.65.0'
+  tag: '6.67.0'
   default: true
 
 endpoints:
