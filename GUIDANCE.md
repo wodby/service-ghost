@@ -16,6 +16,7 @@ Mail goes to the linked mail service over SMTP without TLS or credentials. Do no
 - `url` is the environment's primary URL. Ghost uses it for links, so it changes with the primary host.
 - Ghost listens on `server__host` and `server__port`, port 2368, which is the service's endpoint. `NODE_ENV` is `production`.
 - The setting "Email sender" (required) sets `mail__from`.
+- The setting "Verify new devices by email" sets `security__staffDeviceVerification`. It defaults to `false`, because with it on, staff signing in from a new device need a code sent by email, and without working mail delivery they cannot sign in. Set it to `true` once mail is delivered.
 
 ## Changing configuration
 

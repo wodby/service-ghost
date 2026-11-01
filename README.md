@@ -33,6 +33,10 @@ This repository defines the Wodby service manifest and operational contract for 
 This service requires MySQL 8.4 LTS in production; MariaDB is not supported. Transactional email is sent through the linked SMTP
 relay. Set the required email sender to an address accepted by that relay.
 
+Ghost's check that emails staff a code when they sign in from a new device is off by default, because without working
+mail delivery they could not sign in. Set "Verify new devices by email" to `true` once mail is delivered. Password
+resets, staff invitations, and member email also need working delivery.
+
 Ghost 6 stores persistent files in `/var/lib/ghost/content`. Do not change this service to Ghost 7 as a compatible
 image update: Ghost 7 uses a different content path and requires an explicit storage migration.
 

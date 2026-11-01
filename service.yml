@@ -34,6 +34,11 @@ settings:
   placeholder: Ghost <ghost@example.com>
   required: true
   var: mail__from
+- name: staff_device_verification
+  title: Verify new devices by email
+  description: Set to true to make staff enter an emailed code when signing in from a new device. Keep it false until mail is delivered, or staff cannot sign in.
+  default: 'false'
+  var: security__staffDeviceVerification
 
 env:
 - name: NODE_ENV
