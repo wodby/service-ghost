@@ -7,7 +7,7 @@ scalable: false
 
 options:
 - version: '6'
-  tag: '6.73.0'
+  tag: '6.74.0'
   default: true
 
 endpoints:
@@ -29,8 +29,7 @@ labels:
 settings:
 - name: mail_from
   title: Email sender
-  description: Sender used for transactional email, for example Ghost 
-    <ghost@example.com>
+  description: Sender used for transactional email, for example Ghost <ghost@example.com>
   placeholder: Ghost <ghost@example.com>
   required: true
   var: mail__from
@@ -132,7 +131,7 @@ helm:
   name: wodby
   source: oci://registry-1.docker.io/wodby/stateful
   chart: oci://registry-1.docker.io/wodby/stateful
-  version: 0.2.0
+  version: 0.4.0
   valueMappings:
     replicas: replicaCount
     fullnameOverride: fullnameOverride
