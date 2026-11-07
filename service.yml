@@ -199,6 +199,10 @@ workloads:
   containers:
   - name: ghost
     image: ghost
+    resources:
+      request:
+        cpu: 50
+        memory: 192
     helm:
       resources: resources
       env: envVars
