@@ -7,7 +7,7 @@ scalable: false
 
 options:
 - version: '6'
-  tag: '6.75.0'
+  tag: '6.76.0'
   default: true
 
 endpoints:
@@ -29,13 +29,16 @@ labels:
 settings:
 - name: mail_from
   title: Email sender
-  description: Sender used for transactional email, for example Ghost <ghost@example.com>
+  description: Sender used for transactional email, for example Ghost 
+    <ghost@example.com>
   placeholder: Ghost <ghost@example.com>
   required: true
   var: mail__from
 - name: staff_device_verification
   title: Verify new devices by email
-  description: Set to true to make staff enter an emailed code when signing in from a new device. Keep it false until mail is delivered, or staff cannot sign in.
+  description: Set to true to make staff enter an emailed code when signing in 
+    from a new device. Keep it false until mail is delivered, or staff cannot 
+    sign in.
   default: 'false'
   var: security__staffDeviceVerification
 
