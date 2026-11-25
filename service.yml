@@ -7,8 +7,8 @@ scalable: false
 
 options:
 - version: '6'
-  tag: '6.78.0'
-  digest: sha256:985ef9f30fb897a29050a9ef956bff1737ff1f2cd955aa5b759b88251f9c8735
+  tag: '6.79.0'
+  digest: sha256:abfa44b1827e514bce3ef1f5e1471bb7c7fd885d9e6316cd648a8b8b883808f0
   default: true
 
 endpoints:
